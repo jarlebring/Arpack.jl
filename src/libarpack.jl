@@ -201,6 +201,7 @@ function eupd_wrapper(T, n::Integer, sym::Bool, cmplx::Bool, bmat,
     select = Vector{BlasInt}(undef, ncv)
     info   = Ref{BlasInt}(0)
 
+    debugit=false;
     dmap = x -> abs.(x)
     if iparam[7] == 3 # shift-and-invert
         dmap = x -> abs.(1 ./ (x .- sigma))
@@ -209,6 +210,7 @@ function eupd_wrapper(T, n::Integer, sym::Bool, cmplx::Bool, bmat,
     elseif which == "SR" || which == "SA"
         dmap = x -> -real(x)
     elseif which == "LI"
+        debugit = true;
         dmap = imag
     elseif which == "SI"
         dmap = x -> -imag(x)
@@ -226,6 +228,7 @@ function eupd_wrapper(T, n::Integer, sym::Bool, cmplx::Bool, bmat,
         end
 
         p = sortperm(dmap(d[1:nev]), rev=true)
+        if (debugit); @show d[p]; end
         return ritzvec ? (d[p], v[1:n, p],iparam[5],iparam[3],iparam[9],resid) : (d[p],iparam[5],iparam[3],iparam[9],resid)
     elseif sym
         d = Vector{T}(undef, nev)
@@ -238,6 +241,7 @@ function eupd_wrapper(T, n::Integer, sym::Bool, cmplx::Bool, bmat,
         end
 
         p = sortperm(dmap(d), rev=true)
+        if (debugit); @show d[p]; end
         return ritzvec ? (d[p], v[1:n, p],iparam[5],iparam[3],iparam[9],resid) : (d[p],iparam[5],iparam[3],iparam[9],resid)
     else
         dr = Vector{T}(undef, nev+1)
@@ -284,6 +288,7 @@ function eupd_wrapper(T, n::Integer, sym::Bool, cmplx::Bool, bmat,
             p = p[1:nev]
         end
 
+        if (debugit); @show d[p]; end
         return ritzvec ? (d[p], evec[1:n, p],iparam[5],iparam[3],iparam[9],resid) : (d[p],iparam[5],iparam[3],iparam[9],resid)
     end
 end
